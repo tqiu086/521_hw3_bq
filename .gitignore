@@ -1,0 +1,17 @@
+# Model weights (~15 GB, downloaded from Hugging Face)
+models/
+
+# SynCode token-mask cache (rebuilt automatically)
+cache/
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db

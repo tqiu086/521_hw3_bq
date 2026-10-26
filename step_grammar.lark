@@ -1,0 +1,10 @@
+// One step record, parsed by SynCode *after* the free-text delimiter "<<step".
+// Full record:  <<step total_apples(apples_per_box=12, boxes=5) -> 60>>
+// Step name and argument names are free snake_case identifiers (chosen by the LLM).
+// Argument values are numbers; a second logits mask (decoder.py, PoolMask) restricts them
+// to numbers from the question or outputs of earlier steps.
+start: " " NAME "(" arg (", " arg)* ")" " ->" OUT ">>"
+arg: NAME "=" NUM
+NAME: /[a-z][a-z0-9_]*/
+NUM: /-?[0-9]+(\.[0-9]+)?/
+OUT: / -?[0-9]+(\.[0-9]+)?/
