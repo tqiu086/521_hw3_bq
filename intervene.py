@@ -1,4 +1,5 @@
-"""Intervention test: edit the output of one step of a crane output, continue generation from there, compare answers.
+"""
+Intervention test: edit the output of one step of a crane output, continue generation from there, compare answers.
 python intervene.py  -> results/intervene_<task>.jsonl
 """
 import json, os, random, re, sys
@@ -26,11 +27,11 @@ def main():
                     continue
                 rng = random.Random(r["id"])
                 recs = list(RECORD_RE.finditer(r["output"]))
-                k = rng.randrange(len(recs))                  # step to edit
+                k = rng.randrange(len(recs))
                 m = recs[k]
                 old = m.group(3)
                 new = edit_value(old, rng)
-                head = r["output"][:m.start(3)] + new + ">>"  # everything up to the edited record's end
+                head = r["output"][:m.start(3)] + new + ">>"
                 prefix_outputs = [x.group(3) for x in recs[:k]] + [new]
                 it = items[r["id"]]
                 q_pool = question_pool(it["q"], constants=(task == "gsm8k"))

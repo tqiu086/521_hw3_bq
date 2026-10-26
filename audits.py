@@ -5,7 +5,7 @@ import numpy as np
 from decoder import question_pool, parse_steps, norm, CONSTANTS
 from run_eval import load_task, ROOT
 
-# ----------------------------------------------------------------------------- stats
+# ----------------------------------------------------------- stats
 def fisher_exact(a, b, c, d):
     """Two-sided Fisher exact test for [[a, b], [c, d]]."""
     r1, r2, c1, n = a + b, c + d, a + c, a + b + c + d
@@ -25,7 +25,7 @@ def report(name, items, fail_key, label):
                       sum(r["correct"] for r in f), len(f) - sum(r["correct"] for r in f)) if f and p_ else float("nan")
     return f"| {label} | {name} | {n} | {100*len(f)/n:.1f} | {acc(p_):.1f} ({len(p_)}) | {acc(f):.1f} ({len(f)}) | {pv:.2g} |"
 
-# ----------------------------------------------------------------------------- (i) structured audits
+# ----------------------------------------------------------------------- (i) structured audits
 OPS = [lambda x, y: x + y, lambda x, y: x - y, lambda x, y: x * y, lambda x, y: x / y if y else None]
 
 def exprs(vals):
@@ -85,7 +85,7 @@ def structured(task, rows, items):
         res.append(dict(r, fail_prov=a1, fail_arith=a2, fail_final=a3))
     return res
 
-# ----------------------------------------------------------------------------- (ii) typicality audit
+# ------------------------------------------------------------------------------------(ii) typicality audit
 def embed_names(names):
     import torch
     from run_eval import load_model
@@ -138,7 +138,7 @@ def typicality(all_rows, K=6, q=0.2):
         out[key] = [dict(r, fail_typ=(s < thr), typ_score=s) for r, s in zip(rows, scores) if s is not None]
     return out, clusters
 
-# ----------------------------------------------------------------------------- main
+# ------------------------------------------------------------------------------------- main
 def main():
     lines = ["| task / method | audit | N | % fail | acc if pass (n) | acc if fail (n) | Fisher p |", "|---|---|---|---|---|---|---|"]
     all_rows, items = {}, {}

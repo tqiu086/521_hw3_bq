@@ -1,18 +1,13 @@
 """CRANE-style decoder: free text, switching to SynCode-constrained step records.
 
 Free mode      : plain greedy decoding, no mask.
-Constrained    : entered when the text ends with the start delimiter "<<step";
-                 SynCode masks logits with the step-record grammar and PoolMask restricts
-                 argument values to {numbers in the question} U {earlier step outputs} U constants.
-                 Left when the record is complete (">>"); then the output is added to the pool.
+Constrained    : entered when the text ends with the start delimiter "<<step"
 """
 import re
 import sys
 import types
 import torch
 
-# pandas DLLs are blocked by this machine's application-control policy, and syncode only imports
-# `datasets` for its own benchmark runner, which we do not use.
 sys.modules.setdefault("datasets", types.SimpleNamespace(load_dataset=None))
 from syncode.grammar_mask.logits_processor import SyncodeLogitsProcessor
 from syncode.parsers.grammars import Grammar
@@ -55,7 +50,6 @@ def question_pool(question, constants=True):
 
 
 def parse_steps(text, q_pool, constants=True):
-    """Parse all step records of a model output into rows (name, inputs, output) + provenance flag."""
     pool = set(q_pool)
     rows, prov_ok = [], True
     for m in RECORD_RE.finditer(text):
@@ -78,7 +72,6 @@ def parse_steps(text, q_pool, constants=True):
 
 
 class PoolMask:
-    """Allows numeric tokens only if they extend/complete a number from the pool (argument-value position)."""
 
     def __init__(self, tok, vocab_size):
         self.V = vocab_size
@@ -136,9 +129,8 @@ class CraneDecoder:
             if rec_start is not None:
                 full = torch.tensor([prompt_ids + gen])
                 scores = self.proc(full, scores)
-                scores[:, self.n_text_tokens:] = -float("inf")  # SynCode lets special tokens through (they decode to "")
+                scores[:, self.n_text_tokens:] = -float("inf") 
                 if not torch.isfinite(scores).any():
-                    # SynCode dead-ends after a lone "-" sign (only special tokens survive); digits must follow.
                     scores = torch.full_like(scores, -float("inf"))
                     scores[:, self.digit_ids] = logits.float()[:, self.digit_ids]
                 scores = self.pool_mask.apply(self.tok.decode(gen[rec_start:]), scores, pool)

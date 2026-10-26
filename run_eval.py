@@ -1,4 +1,5 @@
-"""Run CRANE-style decoder, unconstrained CoT and fixed-template (SSRM-style) prompt on GSM8K and BBH.
+"""
+Run CRANE-style decoder, unconstrained CoT and fixed-template (SSRM-style) prompt on GSM8K and BBH.
 
 python run_eval.py --methods crane cot template --tasks gsm8k bbh --n 200
 Outputs: results/<task>_<method>.jsonl  (one line per problem, resumable)
@@ -51,7 +52,7 @@ SYS = {
 }
 
 def build_messages(method, task, q):
-    method = "crane" if method == "crane_free" else method   # same prompt as crane, but decoded without constraints
+    method = "crane" if method == "crane_free" else method 
     ex_q, ex_steps, ex_ans = DEMO[task]
     if method == "cot":
         resp = " ".join(s[0] for s in ex_steps) + f" The answer is {ex_ans}."
@@ -62,7 +63,7 @@ def build_messages(method, task, q):
     return [{"role": "system", "content": SYS[method]}, {"role": "user", "content": ex_q},
             {"role": "assistant", "content": resp}, {"role": "user", "content": q}]
 
-# ----------------------------------------------------------------------------- scoring
+# ------------------------------------------------------------------- scoring
 def extract_answer(text):
     ms = re.findall(r"answer is\s*:?\s*\$?\s*(-?[\d,]*\.?\d+)", text, flags=re.I)
     if not ms:
@@ -87,7 +88,7 @@ def score(method, task, item, text):
     return {"id": item["id"], "gold": item["gold"], "pred": pred, "correct": correct(pred, item["gold"]),
             "n_steps": len(rows), "parsed": parsed, "provenance_ok": bool(rows) and prov, "steps": rows, "output": text}
 
-# ----------------------------------------------------------------------------- main
+# ----------------------------------------------------------------------------------- main
 def load_model():
     tok = AutoTokenizer.from_pretrained(MODEL, padding_side="left")
     q = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.bfloat16,
