@@ -1,4 +1,4 @@
-# Auditable free-form reasoning with a CRANE-style decoder
+# 521 hw3 bonus: Auditable free-form reasoning
 
 Qwen2.5-7B-Instruct (4-bit nf4) writes free-text reasoning. When it writes the delimiter `<<step`, SynCode constrains
 generation with a grammar until `>>`, producing a step record such as
